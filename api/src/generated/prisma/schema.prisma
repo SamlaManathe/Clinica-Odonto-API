@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Secretario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  telefone  String?
+  cargo     String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("secretarios")
+}
+
+model Veterinario {
+  id            Int        @id @default(autoincrement())
+  nome          String
+  email         String     @unique
+  crmv          String     @unique
+  especialidade String
+  telefone      String?
+  descricao     String?
+  ativo         Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  consultas     Consulta[]
+
+  @@map("veterinarios")
+}
+
+model Animal {
+  id                  Int        @id @default(autoincrement())
+  nome                String
+  especie             String
+  raca                String?
+  sexo                String?
+  idade               Int?
+  dataNascimento      DateTime?
+  peso                Float?
+  responsavelNome     String
+  responsavelEmail    String?    @unique
+  responsavelTelefone String?
+  observacoes         String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  consultas           Consulta[]
+
+  @@map("animais")
+}
+
+model Consulta {
+  id            Int         @id @default(autoincrement())
+  dataHora      DateTime
+  motivo        String?
+  status        String      @default("Agendada")
+  anotacoes     String?
+  valor         Float?
+  AnimalId      Int
+  VeterinarioId Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  Animal        Animal      @relation(fields: [AnimalId], references: [id])
+  Veterinario   Veterinario @relation(fields: [VeterinarioId], references: [id])
+
+  @@map("consultas")
+}
